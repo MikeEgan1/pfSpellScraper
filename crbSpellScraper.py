@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 import urllib2
 import re
+import MySQLdb
+
+
 
 from spellParser import spellParser
 from Spell import Spell
@@ -95,6 +98,12 @@ def main():
             if len(links) > 0:
                 spell = links[0]
                 parse_spell(spell.get('href'), spell.text)
+
+def get_connection():
+    return MySQLdb.connect(host="localhost",
+                         user="pfSpells",
+                         passwd="scrapethatspell",
+                         db="pfSpells")
 
 def parse_spell(url, spell_name):
     content = urllib2.urlopen(BASE_URL + url)
