@@ -92,12 +92,13 @@ def main():
     spell_list_url = "spellLists.html"
     content = urllib2.urlopen(BASE_URL + spell_list_url)
     soup = BeautifulSoup(content.read(), "html.parser")
+    connection = get_connection()
     for x in soup.find_all('p'):
         for y in x.find_all('b'):
             links = y.find_all('a')
             if len(links) > 0:
                 spell = links[0]
-                parse_spell(spell.get('href'), spell.text)
+                parse_spell(spell.get('href'), spell.text, connection)
 
 def get_connection():
     return MySQLdb.connect(host="localhost",
@@ -105,12 +106,12 @@ def get_connection():
                          passwd="scrapethatspell",
                          db="pfSpells")
 
-def parse_spell(url, spell_name):
+def parse_spell(url, spell_name, connection):
     content = urllib2.urlopen(BASE_URL + url)
     soup = BeautifulSoup(content.read(), "html.parser")
     spell = scrape_spell_page(soup)
     spell.name = spell_name
-
+    connection.execute("Insert into spells values ({})".format(spell.toString()))
 
 def scrape_spell_page(soup):
     spell = Spell()
