@@ -102,7 +102,7 @@ def main():
 
 def get_connection():
     return MySQLdb.connect(host="localhost",
-                         user="pfSpells",
+                         user="pfSpell",
                          passwd="scrapethatspell",
                          db="pfSpells")
 
