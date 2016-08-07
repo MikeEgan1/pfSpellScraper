@@ -2,12 +2,19 @@ from bs4 import BeautifulSoup
 import urllib2
 import re
 
+from spellParser import spellParser
+from Spell import Spell
+
 BASE_URL = "http://paizo.com/pathfinderRPG/prd/coreRulebook/"
 
 classes = [
     'bard',
     'sorcerer',
-    'wizard'
+    'wizard',
+    'cleric',
+    'druid',
+    'paladin',
+    'ranger'
 ]
 
 schools = [
@@ -23,16 +30,50 @@ schools = [
 ]
 
 subschools = [
-    'figment',
-    'compulsion',
+    'calling',
+    'creation',
     'healing',
-    'charm'
+    'summoning',
+    'teleportation',
+    'scrying',
+    'charm',
+    'compulsion',
+    'figment',
+    'glamer',
+    'pattern',
+    'phantasm',
+    'shadow',
+    'polymorph'
+    ''
 ]
 
 descriptors = [
+    'acid',
+    'air',
+    'chaotic',
+    'cold',
+    'curse',
+    'darkness',
+    'death',
+    'disease',
+    'earth',
+    'electricity',
+    'emotion',
+    'evil',
+    'fear',
+    'fire',
+    'force',
+    'good',
+    'language-dependant',
+    'lawful',
     'light',
     'mind-affecting',
-    'fear'
+    'pain',
+    'poison',
+    'ruse',
+    'shadow',
+    'sonic',
+    'water'
 ]
 
 components = [
@@ -58,27 +99,62 @@ def main():
 def parse_spell(url, spell_name):
     content = urllib2.urlopen(BASE_URL + url)
     soup = BeautifulSoup(content.read(), "html.parser")
-    scrape_spell_page(soup)
+    spell = scrape_spell_page(soup)
+    spell.name = spell_name
 
-    # print spell_name
 
 def scrape_spell_page(soup):
-    spell = {}
+    spell = Spell()
     body = soup.find_all('body')
     paragraphs = body[0].find_all('p')
 
     for paragraph in paragraphs:
-        if "School" in paragraph.text:
-            spell["school"], spell["levels"] = parse_school_and_levels(paragraph)
+        if paragraph.attrs.get("class") != None and paragraph.attrs.get("class")[0] == "stat-block-title":
+            continue
+        elif "School" in paragraph.text:
+            spell.school, spell.levels, spell.subschool = parse_school_and_levels(paragraph)
         elif "Casting Time" in paragraph.text:
-            spell["action"] = parse_action(paragraph)
-        elif "Components" in paragraph.text:
-            spell["components"] = parse_components(paragraph)
+            spell.action = parse_action(paragraph)
+        elif "Component" in paragraph.text:
+            spell.components = parse_components(paragraph)
+        elif "Range" in paragraph.text:
+            spell.range = parse_range(paragraph)
+        elif "Effect" in paragraph.text:
+            spell.effect = parse_effect(paragraph)
+        elif "Duration" in paragraph.text:
+            spell.duration = parse_duration(paragraph)
+        elif "Saving Throw" in paragraph.text:
+            spell.saving_throw, spell.spell_resistance = parse_saving_throw(paragraph)
+        elif "Report a Problem" in paragraph.text:
+            continue
+        else:
+            # print paragraph.text
+            if spell.description == None:
+                spell.description = paragraph.text
+            else:
+                spell.description = spell.description + " " + paragraph.text
 
-    print spell
+    print spell.subschool
+    return spell
 
 def parse_action(paragraph):
     return paragraph.text.replace("Casting Time", "")
+
+def parse_range(paragraph):
+    return paragraph.text.replace("Range", "")
+
+def parse_effect(paragraph):
+    return paragraph.text.replace("Effect", "")
+
+def parse_duration(paragraph):
+    return paragraph.text.replace("Duration", "")
+
+def parse_saving_throw(paragraph):
+    saving_throw_and_resistance = paragraph.text.split(";")
+    if len(saving_throw_and_resistance) > 1:
+        return saving_throw_and_resistance[0].replace("Saving Throw", ""), saving_throw_and_resistance[1].replace("Spell Resistance", "")
+    else:
+        return saving_throw_and_resistance[0].replace("Saving Throw", ""), None
 
 def parse_components(paragraph):
     final_components = []
@@ -110,10 +186,10 @@ def parse_component_with_item(component):
 
 def parse_school_and_levels(paragraph):
     parts = paragraph.text.split(";")
-    school = parse_school(parts[0])
+    school, subschools = parse_school(parts[0])
     classes = parse_classes(parts[1])
 
-    return school, classes
+    return school, classes, subschools
 
 def parse_classes(part):
     class_level_dict = {}
@@ -134,6 +210,7 @@ def parse_classes(part):
 
 def parse_school(part):
     spell_school = None
+    found_subschool = None
     for school in schools:
         result = re.search(school, part)
 
@@ -143,7 +220,13 @@ def parse_school(part):
     if spell_school == None:
         print part
 
-    return spell_school
+    for subschool in subschools:
+        result = re.search(subschool, part)
+
+        if result:
+            found_subschool = subschool
+
+    return spell_school, found_subschool
 
 
 
