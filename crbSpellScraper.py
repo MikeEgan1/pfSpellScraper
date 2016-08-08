@@ -2,26 +2,27 @@ from bs4 import BeautifulSoup
 import urllib2
 import re
 import MySQLdb
+import ConnectionManager
 
 from elasticsearch import Elasticsearch
 from spellParser import spellParser
 
 BASE_URL = "http://paizo.com/pathfinderRPG/prd/coreRulebook/"
 
-
-def get_connection():
-    return MySQLdb.connect(host="127.0.0.1",
-                           user="pfSpell",
-                           passwd="scrapethatspell",
-                           db="pfSpells")
 def main():
+    cm = ConnectionManager()
+
+    parse_all_spells(
+        cm.get_connection(),
+        spellParser(),
+        Elasticsearch()
+    )
+
+
+def parse_all_spells(parser, connection, es_connection):
     spell_list_url = "spellLists.html"
     content = urllib2.urlopen(BASE_URL + spell_list_url)
     soup = BeautifulSoup(content.read(), "html.parser")
-    connection = get_connection()
-    connection.autocommit(True)
-    sp = spellParser()
-    es = Elasticsearch()
     for x in soup.find_all('p'):
         for y in x.find_all('b'):
             links = y.find_all('a')

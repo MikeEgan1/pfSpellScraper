@@ -4,7 +4,6 @@ import urllib2
 import pf_data
 from Spell import Spell
 
-
 class spellParser(object):
     def __init__(self):
         pass
@@ -50,98 +49,95 @@ class spellParser(object):
 
         return spell
 
-        def parse_action(self, paragraph):
-            return paragraph.text.replace("Casting Time", "")
+    def parse_action(self, paragraph):
+        return paragraph.text.replace("Casting Time", "")
 
-        def parse_range(self, paragraph):
-            return paragraph.text.replace("Range", "")
+    def parse_range(self, paragraph):
+        return paragraph.text.replace("Range", "")
 
-        def parse_effect(self, paragraph):
-            return paragraph.text.replace("Effect", "")
+    def parse_effect(self, paragraph):
+        return paragraph.text.replace("Effect", "")
 
-        def parse_duration(self, paragraph):
-            return paragraph.text.replace("Duration", "")
+    def parse_duration(self, paragraph):
+        return paragraph.text.replace("Duration", "")
 
-        def parse_saving_throw(self, paragraph):
-            saving_throw_and_resistance = paragraph.text.split(";")
-            if len(saving_throw_and_resistance) > 1:
-                return saving_throw_and_resistance[0].replace("Saving Throw", ""), saving_throw_and_resistance[1].replace("Spell Resistance", "")
-            else:
-                return saving_throw_and_resistance[0].replace("Saving Throw", ""), None
+    def parse_saving_throw(self, paragraph):
+        saving_throw_and_resistance = paragraph.text.split(";")
+        if len(saving_throw_and_resistance) > 1:
+            return saving_throw_and_resistance[0].replace("Saving Throw", ""), saving_throw_and_resistance[1].replace("Spell Resistance", "")
+        else:
+            return saving_throw_and_resistance[0].replace("Saving Throw", ""), None
 
 
-        def parse_components(self, paragraph):
-            final_components = []
-            components = paragraph.text.replace("Components", "").replace("Component:", "").split(",")
-            for component in components:
-                if any(comp in component for comp in ['M', 'F']):
-                    parsed_components = parse_component_with_item(component)
-                    if '/' in parsed_components[0]:
-                        if len(parsed_components) == 1:
-                            final_components.extend([x for x in parsed_components[0].split('/')])
-                        else:
-                            final_components.extend([[x, parsed_components[1]] for x in parsed_components[0].split('/')])
+    def parse_components(self, paragraph):
+        final_components = []
+        components = paragraph.text.replace("Components", "").replace("Component:", "").split(",")
+        for component in components:
+            if any(comp in component for comp in ['M', 'F']):
+                parsed_components = self.parse_component_with_item(component)
+                if '/' in parsed_components[0]:
+                    if len(parsed_components) == 1:
+                        final_components.extend([x for x in parsed_components[0].split('/')])
                     else:
-                        if len(parsed_components) == 1:
-                            final_components.append(parsed_components[0])
-                        else:
-                            final_components.append(parsed_components)
+                        final_components.extend([[x, parsed_components[1]] for x in parsed_components[0].split('/')])
                 else:
-                    final_components.append(component.strip())
+                    if len(parsed_components) == 1:
+                        final_components.append(parsed_components[0])
+                    else:
+                        final_components.append(parsed_components)
+            else:
+                final_components.append(component.strip())
 
-            return final_components
+        return final_components
 
-        def parse_component_with_item(self, component):
-            components = component.strip().split(" ", 1)
-            if len(components) < 2:
-                return components
-
-            components[1] = components[1].replace('(', "").replace(")", "")
+    def parse_component_with_item(self, component):
+        components = component.strip().split(" ", 1)
+        if len(components) < 2:
             return components
 
-        def parse_school_and_levels(self, paragraph):
-            parts = paragraph.text.split(";")
-            school, subschools = self.parse_school(parts[0])
-            classes = parse_classes(parts[1])
+        components[1] = components[1].replace('(', "").replace(")", "")
+        return components
 
-            return school, classes, subschools
+    def parse_school_and_levels(self, paragraph):
+        parts = paragraph.text.split(";")
+        school, subschools = self.parse_school(parts[0])
+        classes = self.parse_classes(parts[1])
 
-        def parse_classes(self, part):
-            class_level_dict = {}
-            class_and_levels = part.replace("Level", "").split(",")
+        return school, classes, subschools
 
-            for class_and_level in class_and_levels:
-                class_level_split = class_and_level.strip().split(" ")
-                spell_class = class_level_split[0]
-                spell_level = class_level_split[1]
+    def parse_classes(self, part):
+        class_level_dict = {}
+        class_and_levels = part.replace("Level", "").split(",")
 
-                if spell_class == "sorcerer/wizard":
-                    class_level_dict["sorcerer"] =  spell_level
-                    class_level_dict["wizard"] =  spell_level
-                else:
-                    class_level_dict[spell_class] = spell_level
+        for class_and_level in class_and_levels:
+            class_level_split = class_and_level.strip().split(" ")
+            spell_class = class_level_split[0]
+            spell_level = class_level_split[1]
 
-            return class_level_dict
+            if spell_class == "sorcerer/wizard":
+                class_level_dict["sorcerer"] =  spell_level
+                class_level_dict["wizard"] =  spell_level
+            else:
+                class_level_dict[spell_class] = spell_level
 
-        def parse_school(self, part):
-            spell_school = None
-            found_subschool = None
-            for school in pf_data.schools:
-                result = re.search(school, part)
+        return class_level_dict
 
-                if result:
-                    spell_school = result.group(0)
+    def parse_school(self, part):
+        spell_school = None
+        found_subschool = None
+        for school in pf_data.schools:
+            result = re.search(school, part)
 
-            if spell_school == None:
-                print part
+            if result:
+                spell_school = result.group(0)
 
-            for subschool in pf_data.subschools:
-                result = re.search(subschool, part)
+        if spell_school == None:
+            print part
 
-                if result:
-                    found_subschool = subschool
+        for subschool in pf_data.subschools:
+            result = re.search(subschool, part)
 
-            return spell_school, found_subschool
+            if result:
+                found_subschool = subschool
 
-
-
+        return spell_school, found_subschool

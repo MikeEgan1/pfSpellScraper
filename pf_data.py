@@ -1,4 +1,3 @@
-
 classes = [
     'bard',
     'sorcerer',
@@ -6,7 +5,7 @@ classes = [
     'cleric',
     'druid',
     'paladin',
-    'ranger'
+    'ranger',
 ]
 
 schools = [
@@ -36,8 +35,8 @@ subschools = [
     'phantasm',
     'shadow',
     'polymorph'
-    ''
 ]
+
 
 descriptors = [
     'acid',
