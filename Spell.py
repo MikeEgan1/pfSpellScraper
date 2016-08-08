@@ -23,4 +23,4 @@ class Spell(object):
         return self.__dict__
 
     def json(self):
-        return json.loads(self.__dict__)
+        return json.dumps(self.__dict__)

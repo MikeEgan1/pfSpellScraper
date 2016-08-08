@@ -3,7 +3,7 @@ import urllib2
 import re
 import MySQLdb
 
-
+from elasticsearch import Elasticsearch
 
 from spellParser import spellParser
 from Spell import Spell
@@ -93,26 +93,33 @@ def main():
     content = urllib2.urlopen(BASE_URL + spell_list_url)
     soup = BeautifulSoup(content.read(), "html.parser")
     connection = get_connection()
+    connection.autocommit(True)
+    es = Elasticsearch()
     for x in soup.find_all('p'):
         for y in x.find_all('b'):
             links = y.find_all('a')
             if len(links) > 0:
                 spell = links[0]
-                parse_spell(spell.get('href'), spell.text, connection)
+                parse_spell(spell.get('href'), spell.text, connection, es)
 
 def get_connection():
-    return MySQLdb.connect(host="localhost",
+    return MySQLdb.connect(host="127.0.0.1",
                          user="pfSpell",
                          passwd="scrapethatspell",
                          db="pfSpells")
 
-def parse_spell(url, spell_name, connection):
+def parse_spell(url, spell_name, connection, es):
+
     content = urllib2.urlopen(BASE_URL + url)
     soup = BeautifulSoup(content.read(), "html.parser")
     spell = scrape_spell_page(soup)
     spell.name = spell_name
     cursor = connection.cursor()
-    cursor.execute("Insert into spells values ({})".format(spell.json()))
+    sql = "Insert into spells (spell_data) values ('" + connection.escape_string(spell.json()) + "')"
+    # cursor.execute(sql)
+    print spell.json()
+    # print "inserted {}".format(spell_name)
+    es.index(index="pfspells", doc_type="spell", body=spell.json())
 
 def scrape_spell_page(soup):
     spell = Spell()
@@ -145,7 +152,6 @@ def scrape_spell_page(soup):
             else:
                 spell.description = spell.description + " " + paragraph.text
 
-    print spell.subschool
     return spell
 
 def parse_action(paragraph):
@@ -174,14 +180,17 @@ def parse_components(paragraph):
         if any(comp in component for comp in ['M', 'F']):
             parsed_components = parse_component_with_item(component)
             if '/' in parsed_components[0]:
-                final_components.extend([[x, parsed_components[1]] for x in parsed_components[0].split('/')])
+                if len(parsed_components) == 1:
+                    final_components.extend([x for x in parsed_components[0].split('/')])
+                else:
+                    final_components.extend([[x, parsed_components[1]] for x in parsed_components[0].split('/')])
             else:
                 if len(parsed_components) == 1:
                     final_components.append(parsed_components[0])
                 else:
                     final_components.append(parsed_components)
         else:
-            final_components.append(component)
+            final_components.append(component.strip())
 
     return final_components
 
