@@ -111,7 +111,8 @@ def parse_spell(url, spell_name, connection):
     soup = BeautifulSoup(content.read(), "html.parser")
     spell = scrape_spell_page(soup)
     spell.name = spell_name
-    connection.execute("Insert into spells values ({})".format(spell.toString()))
+    cursor = connection.cursor()
+    cursor.execute("Insert into spells values ({})".format(spell.toString()))
 
 def scrape_spell_page(soup):
     spell = Spell()
