@@ -28,8 +28,9 @@ def parse_all_spells(parser, connection, es_connection):
             links = y.find_all('a')
             if len(links) > 0:
                 spell = links[0]
-                sp.parse_spell(BASE_URL + "" + spell.get('href'), spell.text, connection, es)
-
+                parsed_spell = parser.parse_spell(BASE_URL + "" + spell.get('href'), spell.text, "crb");
+                save_to_mysql(connection, parsed_spell)
+                save_to_elastic_search(es_connection, parsed_spell)
 
 def save_to_mysql(connection, spell):
     cursor = connection.cursor()
