@@ -108,6 +108,8 @@ def get_connection():
                          passwd="scrapethatspell",
                          db="pfSpells")
 
+
+
 def parse_spell(url, spell_name, connection, es):
 
     content = urllib2.urlopen(BASE_URL + url)
@@ -120,6 +122,7 @@ def parse_spell(url, spell_name, connection, es):
     print spell.json()
     # print "inserted {}".format(spell_name)
     es.index(index="pfspells", doc_type="spell", body=spell.json())
+    return spell
 
 def scrape_spell_page(soup):
     spell = Spell()
