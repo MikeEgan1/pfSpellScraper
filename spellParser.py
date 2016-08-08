@@ -14,6 +14,7 @@ class spellParser(object):
         spell = self.scrape_spell_page(soup)
         spell.name = spell_name
         spell.source_book = source_book
+        spell.url = url
         return spell
 
     def scrape_spell_page(self, soup):

@@ -1,9 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib2
-import re
-import MySQLdb
-import ConnectionManager
 
+from ConnectionManager import ConnectionManager
 from elasticsearch import Elasticsearch
 from spellParser import spellParser
 
@@ -13,8 +11,8 @@ def main():
     cm = ConnectionManager()
 
     parse_all_spells(
-        cm.get_connection(),
         spellParser(),
+        cm.get_connection(),
         Elasticsearch()
     )
 
