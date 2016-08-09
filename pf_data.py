@@ -6,6 +6,11 @@ classes = [
     'druid',
     'paladin',
     'ranger',
+    'alchemist',
+    'antipaladin',
+    'inquisitor',
+    'summoner',
+    'witch'
 ]
 
 schools = [
