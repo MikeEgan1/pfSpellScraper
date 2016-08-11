@@ -30,6 +30,7 @@ def parse_all_spells(parser, connection, es_connection):
             if len(links) > 0:
                 spell = links[0]
                 parsed_spell = parser.parse_spell(BASE_URL + "" + spell.get('href'), spell.text, "crb");
+                print parsed_spell.name
                 spell_model.save(parsed_spell)
 
 if __name__ == "__main__":
