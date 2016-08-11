@@ -18,7 +18,6 @@ def main():
             Elasticsearch()
     )
 
-
 def parse_all_spells(parser, connection, es_connection):
     spell_model = Spell()
     spell_list_url = "advancedSpellLists.html"

@@ -5,8 +5,11 @@ import pf_data
 from Spell import Spell
 
 class spellParser(object):
-    def __init__(self):
-        pass
+
+    orign_class = None
+
+    def __init__(self, origin_class=None):
+        self.orign_class = origin_class
 
     def parse_spell(self, url, spell_name, source_book):
         content = urllib2.urlopen(url)
@@ -107,6 +110,7 @@ class spellParser(object):
         return school, classes, subschools
 
     def parse_classes(self, part):
+        #TODO BUILD SUPPORT FOR ORIGIN CLASS
         class_level_dict = {}
         class_and_levels = part.replace("Level", "").split(",")
 
@@ -118,8 +122,14 @@ class spellParser(object):
             if spell_class == "sorcerer/wizard":
                 class_level_dict["sorcerer"] =  spell_level
                 class_level_dict["wizard"] =  spell_level
+            elif spell_class == "cleric":
+                class_level_dict["cleric"] = spell_level
+                class_level_dict["oracle"] = spell_level
             else:
                 class_level_dict[spell_class] = spell_level
+
+        if self.orign_class != None:
+            class_level_dict[self.orign_class["class"]] = self.orign_class["level"]
 
         return class_level_dict
 
