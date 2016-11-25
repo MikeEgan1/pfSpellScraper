@@ -2,6 +2,7 @@ from ConnectionManager import ConnectionManager
 from elasticsearch import Elasticsearch
 from elastic_search.queries.Builder import Builder
 
+
 class Models(object):
     def __init__(self):
         self.cm = ConnectionManager()

@@ -1,8 +1,9 @@
-### This is the query builder for elastic search
+# This is the query builder for elastic search
+
 
 class Builder(object):
     query = {
-        "query" : {}
+        "query": {}
     }
 
     def constant_score(self):
@@ -15,7 +16,7 @@ class Builder(object):
 
     def term(self, key, value):
         self.query["query"]["constant_score"]["filter"]["term"] = {
-            key : value
+            key: value
         }
         return self
 

@@ -1,5 +1,6 @@
 import json
 
+
 class Spell(object):
 
     name = None
@@ -21,7 +22,7 @@ class Spell(object):
     def __init__(self):
         return
 
-    def toString(self):
+    def to_string(self):
         return self.__dict__
 
     def json(self):

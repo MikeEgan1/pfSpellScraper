@@ -4,8 +4,8 @@ import urllib2
 import pf_data
 from Spell import Spell
 
-class spellParser(object):
 
+class SpellParser(object):
     orign_class = None
 
     def __init__(self, origin_class=None):
@@ -26,7 +26,7 @@ class spellParser(object):
         paragraphs = body[0].find_all('p')
 
         for paragraph in paragraphs:
-            if paragraph.attrs.get("class") != None and paragraph.attrs.get("class")[0] == "stat-block-title":
+            if paragraph.attrs.get("class") is not None and paragraph.attrs.get("class")[0] == "stat-block-title":
                 continue
             elif "School" in paragraph.text:
                 spell.school, spell.levels, spell.subschool = self.parse_school_and_levels(paragraph)
@@ -46,32 +46,37 @@ class spellParser(object):
                 continue
             else:
                 # print paragraph.text
-                if spell.description == None:
+                if spell.description is None:
                     spell.description = paragraph.text
                 else:
                     spell.description = spell.description + " " + paragraph.text
 
         return spell
 
-    def parse_action(self, paragraph):
+    @staticmethod
+    def parse_action(paragraph):
         return paragraph.text.replace("Casting Time", "")
 
-    def parse_range(self, paragraph):
+    @staticmethod
+    def parse_range(paragraph):
         return paragraph.text.replace("Range", "")
 
-    def parse_effect(self, paragraph):
+    @staticmethod
+    def parse_effect(paragraph):
         return paragraph.text.replace("Effect", "")
 
-    def parse_duration(self, paragraph):
+    @staticmethod
+    def parse_duration(paragraph):
         return paragraph.text.replace("Duration", "")
 
-    def parse_saving_throw(self, paragraph):
+    @staticmethod
+    def parse_saving_throw(paragraph):
         saving_throw_and_resistance = paragraph.text.split(";")
         if len(saving_throw_and_resistance) > 1:
-            return saving_throw_and_resistance[0].replace("Saving Throw", ""), saving_throw_and_resistance[1].replace("Spell Resistance", "")
+            return saving_throw_and_resistance[0].replace("Saving Throw", "") \
+                , saving_throw_and_resistance[1].replace("Spell Resistance", "")
         else:
             return saving_throw_and_resistance[0].replace("Saving Throw", ""), None
-
 
     def parse_components(self, paragraph):
         final_components = []
@@ -94,7 +99,8 @@ class spellParser(object):
 
         return final_components
 
-    def parse_component_with_item(self, component):
+    @staticmethod
+    def parse_component_with_item(component):
         components = component.strip().split(" ", 1)
         if len(components) < 2:
             return components
@@ -110,7 +116,7 @@ class spellParser(object):
         return school, classes, subschools
 
     def parse_classes(self, part):
-        #TODO BUILD SUPPORT FOR ORIGIN CLASS
+        # TODO BUILD SUPPORT FOR ORIGIN CLASS
         class_level_dict = {}
         class_and_levels = part.replace("Level", "").split(",")
 
@@ -120,20 +126,21 @@ class spellParser(object):
             spell_level = class_level_split[1]
 
             if spell_class == "sorcerer/wizard":
-                class_level_dict["sorcerer"] =  spell_level
-                class_level_dict["wizard"] =  spell_level
+                class_level_dict["sorcerer"] = spell_level
+                class_level_dict["wizard"] = spell_level
             elif spell_class == "cleric":
                 class_level_dict["cleric"] = spell_level
                 class_level_dict["oracle"] = spell_level
             else:
                 class_level_dict[spell_class] = spell_level
 
-        if self.orign_class != None:
+        if self.orign_class is not None:
             class_level_dict[self.orign_class["class"]] = self.orign_class["level"]
 
         return class_level_dict
 
-    def parse_school(self, part):
+    @staticmethod
+    def parse_school(part):
         spell_school = None
         found_subschool = None
         for school in pf_data.schools:
@@ -142,7 +149,7 @@ class spellParser(object):
             if result:
                 spell_school = result.group(0)
 
-        if spell_school == None:
+        if spell_school is None:
             print part
 
         for subschool in pf_data.subschools:
