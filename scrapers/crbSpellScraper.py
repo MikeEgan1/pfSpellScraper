@@ -11,16 +11,10 @@ BASE_URL = "http://paizo.com/pathfinderRPG/prd/coreRulebook/"
 
 
 def main():
-    cm = ConnectionManager()
-
-    parse_all_spells(
-        SpellParser(),
-        cm.get_connection(),
-        Elasticsearch()
-    )
+    parse_all_spells(SpellParser())
 
 
-def parse_all_spells(parser, connection, es_connection):
+def parse_all_spells(parser):
     spell_model = Spell()
     spell_list_url = "spellLists.html"
     content = urllib2.urlopen(BASE_URL + spell_list_url)

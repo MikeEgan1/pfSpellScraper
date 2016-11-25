@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import urllib2
-import pf_data
+from resources import classes, descriptors, schools, subschools
 from Spell import Spell
 
 
@@ -143,7 +143,7 @@ class SpellParser(object):
     def parse_school(part):
         spell_school = None
         found_subschool = None
-        for school in pf_data.schools:
+        for school in schools:
             result = re.search(school, part)
 
             if result:
@@ -152,7 +152,7 @@ class SpellParser(object):
         if spell_school is None:
             print part
 
-        for subschool in pf_data.subschools:
+        for subschool in subschools:
             result = re.search(subschool, part)
 
             if result:
