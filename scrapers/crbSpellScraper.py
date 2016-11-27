@@ -1,8 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib2
 
-from ConnectionManager import ConnectionManager
-from elasticsearch import Elasticsearch
 from SpellParser import SpellParser
 
 from models.spell import Spell
@@ -26,7 +24,8 @@ def parse_all_spells(parser):
                 spell = links[0]
                 parsed_spell = parser.parse_spell(BASE_URL + "" + spell.get('href'), spell.text, "crb")
                 print parsed_spell.name
-                spell_model.save(parsed_spell)
+                print parsed_spell.__dict__
+                # spell_model.save(parsed_spell)
 
 if __name__ == "__main__":
     main()
