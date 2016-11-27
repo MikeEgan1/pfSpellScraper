@@ -1,23 +1,27 @@
 from ConnectionManager import ConnectionManager
-from resources import *
+import domain_tables.classes
 
 def main():
   cm = ConnectionManager()
   connection = cm.get_connection()
-
-def table_exists(connection, table_name):
-    sql = "SELECT * FROM information_schema.TABLES where TABLE_NAME = {}".format(table_name)
-    cursor = connection.cursor()
-    print cursor.execute(sql)
+  # create_classes(connection)
 
 def create_table(connection, table_name):
     pass
 
-def insert_rows(rows):
-    pass
+def insert_rows(connection, table_name, rows, data_field):
+    cursor = connection.cursor()
+
+    for i in xrange(len(rows)):
+        sql = """insert into {table_name} ({data_field}}) values ('{row}');""".format(table_name=table_name, data_field=data_field, row=rows[i])
+        cursor.execute(sql)
 
 def update_table(rows):
     pass
 
-if __name__ == "__main__"():
+
+def create_classes(connection):
+    insert_rows(connection, "classes", domain_tables.classes.classes)
+
+if __name__ == "__main__":
      main()

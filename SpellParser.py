@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import urllib2
-from resources import schools, subschools
+from domain_tables import schools, subschools
 from Spell import Spell
 
 
