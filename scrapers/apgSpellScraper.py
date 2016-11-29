@@ -26,7 +26,7 @@ def parse_all_spells(parser):
                 spell = links[0]
                 parsed_spell = parser.parse_spell("http://paizo.com" + "" + spell.get('href'), spell.text, "apg")
                 print parsed_spell.name
-                spell_model.save(parsed_spell)
+                # spell_model.save(parsed_spell)
 
 
 if __name__ == "__main__":

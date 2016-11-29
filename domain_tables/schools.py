@@ -1,4 +1,5 @@
 schools = [
+    "placeholder",
     'evocation',
     'enchantment',
     'divination',

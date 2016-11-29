@@ -8,11 +8,12 @@ class Models(object):
         self.cm = ConnectionManager()
         self.es = Elasticsearch()
         self.builder = Builder()
+        self.connection = self.cm.get_connection()
 
     def save_to_mysql(self, sql):
-        connection = self.cm.get_connection()
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         cursor.execute(sql)
+        return cursor
 
     def save_to_elastic_search(self, index, doc_type, body):
         self.es.index(index=index, doc_type=doc_type, body=body)

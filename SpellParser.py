@@ -1,7 +1,10 @@
 from bs4 import BeautifulSoup
 import re
 import urllib2
-from domain_tables import schools, subschools
+from domain_tables.schools import schools
+from domain_tables.subschools import subschools
+from domain_tables.classes import classes
+
 from Spell import Spell
 
 
@@ -55,28 +58,28 @@ class SpellParser(object):
 
     @staticmethod
     def parse_action(paragraph):
-        return paragraph.text.replace("Casting Time", "")
+        return paragraph.text.replace("Casting Time", "").strip()
 
     @staticmethod
     def parse_range(paragraph):
-        return paragraph.text.replace("Range", "")
+        return paragraph.text.replace("Range", "").strip()
 
     @staticmethod
     def parse_effect(paragraph):
-        return paragraph.text.replace("Effect", "")
+        return paragraph.text.replace("Effect", "").strip()
 
     @staticmethod
     def parse_duration(paragraph):
-        return paragraph.text.replace("Duration", "")
+        return paragraph.text.replace("Duration", "").strip()
 
     @staticmethod
     def parse_saving_throw(paragraph):
         saving_throw_and_resistance = paragraph.text.split(";")
         if len(saving_throw_and_resistance) > 1:
-            return saving_throw_and_resistance[0].replace("Saving Throw", "") \
-                , saving_throw_and_resistance[1].replace("Spell Resistance", "")
+            return saving_throw_and_resistance[0].replace("Saving Throw", "").strip() \
+                , saving_throw_and_resistance[1].replace("Spell Resistance", "").strip()
         else:
-            return saving_throw_and_resistance[0].replace("Saving Throw", ""), None
+            return saving_throw_and_resistance[0].replace("Saving Throw", "").strip(), None
 
     def parse_components(self, paragraph):
         final_components = []
@@ -116,7 +119,6 @@ class SpellParser(object):
         return school, classes, subschools
 
     def parse_classes(self, part):
-        # TODO BUILD SUPPORT FOR ORIGIN CLASS
         class_level_dict = {}
         class_and_levels = part.replace("Level", "").split(",")
 
@@ -126,16 +128,14 @@ class SpellParser(object):
             spell_level = class_level_split[1]
 
             if spell_class == "sorcerer/wizard":
-                class_level_dict["sorcerer"] = spell_level
-                class_level_dict["wizard"] = spell_level
+                class_level_dict[classes.index("sorcerer")] = spell_level
+                class_level_dict[classes.index("wizard")] = spell_level
             elif spell_class == "cleric":
-                class_level_dict["cleric"] = spell_level
-                class_level_dict["oracle"] = spell_level
+                class_level_dict[classes.index("cleric")] = spell_level
+                # class_level_dict["oracle"] = spell_level
             else:
-                class_level_dict[spell_class] = spell_level
-
-        if self.orign_class is not None:
-            class_level_dict[self.orign_class["class"]] = self.orign_class["level"]
+                if spell_class in classes:
+                    class_level_dict[classes.index(spell_class)] = spell_level
 
         return class_level_dict
 
@@ -147,7 +147,7 @@ class SpellParser(object):
             result = re.search(school, part)
 
             if result:
-                spell_school = result.group(0)
+                spell_school = schools.index(result.group(0))
 
         if spell_school is None:
             print part
@@ -156,6 +156,6 @@ class SpellParser(object):
             result = re.search(subschool, part)
 
             if result:
-                found_subschool = subschool
+                found_subschool = subschools.index(subschool)
 
         return spell_school, found_subschool

@@ -2,15 +2,12 @@ from bs4 import BeautifulSoup
 import urllib2
 
 from SpellParser import SpellParser
-
 from models.spell import Spell
 
 BASE_URL = "http://paizo.com/pathfinderRPG/prd/coreRulebook/"
 
-
 def main():
     parse_all_spells(SpellParser())
-
 
 def parse_all_spells(parser):
     spell_model = Spell()
@@ -23,9 +20,7 @@ def parse_all_spells(parser):
             if len(links) > 0:
                 spell = links[0]
                 parsed_spell = parser.parse_spell(BASE_URL + "" + spell.get('href'), spell.text, "crb")
-                print parsed_spell.name
-                print parsed_spell.__dict__
-                # spell_model.save(parsed_spell)
+                spell_model.save(parsed_spell)
 
 if __name__ == "__main__":
     main()
